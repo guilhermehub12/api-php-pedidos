@@ -1,0 +1,17 @@
+{
+    "name": "guilherme/api-php-carros",
+    "autoload": {
+        "psr-4": {
+            "Guilherme\\ApiPhpCarros\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Guilherme Delmiro",
+            "email": "guilhermedelmiro11@gmail.com"
+        }
+    ],
+    "require": {
+        "vlucas/phpdotenv": "^5.6"
+    }
+}
