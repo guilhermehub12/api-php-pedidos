@@ -1,0 +1,14 @@
+CREATE TABLE IF NOT EXISTS carros (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  imagem VARCHAR(255)       NOT NULL,
+  nome VARCHAR(100)         NOT NULL,
+  descricao TEXT            NULL,
+  preco DECIMAL(10,2)       NOT NULL,
+  fabricante VARCHAR(100)   NOT NULL,
+  marca VARCHAR(100)        NOT NULL,
+  estado ENUM('novo','usado') NOT NULL DEFAULT 'usado',
+  tipo VARCHAR(50)          NOT NULL,
+  ano YEAR                  NOT NULL,
+  criado_em TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  atualizado_em TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
