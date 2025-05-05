@@ -4,6 +4,7 @@ namespace Src\Services;
 
 use Src\Models\Carro;
 use Psr\Log\LoggerInterface;
+use Respect\Validation\Validator as v;
 
 class CarroService
 {
@@ -14,6 +15,55 @@ class CarroService
     {
         $this->carro = $carro;
         $this->logger = $logger;
+    }
+
+    public function validar(array $data): void
+    {
+        // Validação dos dados
+        $validator = v::key('imagem', v::stringType()->notEmpty()->assert($data['imagem']))
+            ->key('nome', v::stringType()->notEmpty()->length(3, 100)->assert($data['nome']))
+            ->key('descricao', v::stringType()->notEmpty()->length(0, 255)->assert($data['descricao']))
+            ->key('preco', v::floatType()->positive()->assert($data['preco']))
+            ->key('fabricante', v::stringType()->notEmpty()->assert($data['fabricante']))
+            ->key('marca', v::stringType()->notEmpty()->assert($data['marca']))
+            ->key('estado', v::in(['novo', 'usado'])->assert($data['estado']))
+            ->key('tipo', v::in(['hatch', 'sedan', 'SUV'])->assert($data['tipo']))
+            ->key('ano', v::intVal()->between(1900, date("Y"))->assert($data['ano']));
+        // Validação de imagem
+        $validator->key('imagem', v::callback(function ($value) {
+            $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+            $extension = pathinfo($value, PATHINFO_EXTENSION);
+            return in_array($extension, $allowedExtensions);
+        }));
+        // Validação de preço
+        $validator->key('preco', v::callback(function ($value) {
+            return preg_match('/^\d+(\.\d{1,2})?$/', $value);
+        }));
+        // Validação de ano
+        $validator->key('ano', v::callback(function ($value) {
+            return preg_match('/^\d{4}$/', $value);
+        }));
+        // Validação de estado
+        $validator->key('estado', v::callback(function ($value) {
+            return in_array($value, ['novo', 'usado']);
+        }));
+        // Validação de tipo
+        $validator->key('tipo', v::callback(function ($value) {
+            return in_array($value, ['hatch', 'sedan', 'SUV']);
+        }));
+        // Validação de fabricante
+        $validator->key('fabricante', v::callback(function ($value) {
+            return preg_match('/^[a-zA-Z0-9\s]+$/', $value);
+        }));
+        // Validação de marca
+        $validator->key('marca', v::callback(function ($value) {
+            return preg_match('/^[a-zA-Z0-9\s]+$/', $value);
+        }));
+
+        if (!$validator->validate($data)) {
+            $this->logger->error("Dados inválidos: " . json_encode($data));
+            throw new \DomainException("Dados inválidos", 422);
+        }
     }
 
     public function listar(array $query): array
