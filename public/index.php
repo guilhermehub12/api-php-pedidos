@@ -9,19 +9,30 @@ use Src\Models\Carro;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 use Monolog\Level;
+use HTMLPurifier;
+use HTMLPurifier_Config;
 
+// Configuração do Dotenv
 $dotenv = Dotenv::createImmutable(__DIR__ . '/../');
 $dotenv->safeLoad();
 $dotenv->required(['DB_HOST','DB_DATABASE','DB_USERNAME','DB_PASSWORD']);
 
+// Configuração do PDO
 $pdo = require __DIR__ . '/../configs/db.php';
+
+// Configuração do Logger
 $logger = new Logger('carro');
 $logger->pushHandler(new StreamHandler(__DIR__ . '/../logs/app.log', Level::Debug));
+
+// Configuração do HTMLPurifier
+$config = HTMLPurifier_Config::createDefault();
+$config->set('HTML.AllowedElements', 'p,b,a,b,br,i,ul,ol,li,strong,em');
+$purifier = new HTMLPurifier($config);
 
 // Instancia do Carro
 $carro = new Carro($pdo);
 $carroService = new CarroService($carro, $logger);
-$carroController = new CarroController($carroService);
+$carroController = new CarroController($carroService, $purifier);
 
 // Rota Carros
 $method = $_SERVER['REQUEST_METHOD'];
