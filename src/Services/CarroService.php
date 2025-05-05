@@ -23,7 +23,7 @@ class CarroService
         $validator = v::key('imagem', v::stringType()->notEmpty()->assert($data['imagem']))
             ->key('nome', v::stringType()->notEmpty()->length(3, 100)->assert($data['nome']))
             ->key('descricao', v::stringType()->notEmpty()->length(0, 255)->assert($data['descricao']))
-            ->key('preco', v::floatType()->positive()->assert($data['preco']))
+            ->key('preco', v::stringType()->assert($data['preco']))
             ->key('fabricante', v::stringType()->notEmpty()->assert($data['fabricante']))
             ->key('marca', v::stringType()->notEmpty()->assert($data['marca']))
             ->key('estado', v::in(['novo', 'usado'])->assert($data['estado']))
@@ -63,6 +63,39 @@ class CarroService
         if (!$validator->validate($data)) {
             $this->logger->error("Dados inválidos: " . json_encode($data));
             throw new \DomainException("Dados inválidos", 422);
+        }
+    }
+
+    public function validarUpdate(array $data): void
+    {
+        // Validar dados que irão ser atualizados
+        if (array_key_exists('imagem', $data)) {
+            v::stringType()->notEmpty()->assert($data['imagem']);
+        }
+        if (array_key_exists('nome', $data)) {
+            v::stringType()->length(3,100)->assert($data['nome']);
+        }
+
+        if (array_key_exists('descricao', $data)) {
+            v::stringType()->length(0,255)->assert($data['descricao']);
+        }
+        if (array_key_exists('preco', $data)) {
+            v::stringType()->assert($data['preco']);
+        }
+        if (array_key_exists('fabricante', $data)) {
+            v::stringType()->notEmpty()->assert($data['fabricante']);
+        }
+        if (array_key_exists('marca', $data)) {
+            v::stringType()->notEmpty()->assert($data['marca']);
+        }
+        if (array_key_exists('estado', $data)) {
+            v::in(['novo', 'usado'])->assert($data['estado']);
+        }
+        if (array_key_exists('tipo', $data)) {
+            v::in(['hatch', 'sedan', 'SUV'])->assert($data['tipo']);
+        }
+        if (array_key_exists('ano', $data)) {
+            v::intVal()->between(1900, date("Y"))->assert($data['ano']);
         }
     }
 
